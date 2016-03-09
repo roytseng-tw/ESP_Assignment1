@@ -5,12 +5,11 @@ typedef struct {
     int len;
     int front;
     int rear;
-    void *data[];
     pthread_mutex_t locker;
+    void **data;
 } queue;
 
-int sq_create(queue *sq);
 int sq_create(queue *sq, int length);
 int sq_write(queue *sq, void *item);
 int sq_read(queue *sq, void *item);
-int sq_delete(queue *sq);
+int sq_delete(queue *sq, void *(*clean)(void *));

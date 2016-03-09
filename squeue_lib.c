@@ -3,11 +3,6 @@
 #include<pthread.h>
 #include"squeue_lib.h"
 
-int sq_create(queue *sq) {
-    sq_create(sq, DEFAULT_QUEUE_LEN);
-    return 0;
-}
-
 int sq_create(queue *sq, int length) {
     sq = (queue*) malloc(sizeof(queue));
     sq->front = sq->rear = 0;
@@ -16,7 +11,7 @@ int sq_create(queue *sq, int length) {
     if(sq->data == NULL)
         printf("Cannot allocate memory.\n");
         return 1;
-    pthread_mutex_init(&sq->locker, NULL);
+    //pthread_mutex_init( &(sq->locker), NULL);
     return 0;
 }
 
@@ -38,7 +33,9 @@ int sq_write(queue *sq, void *item) {
 
 int sq_read(queue *sq, void *item) {
     /*dequeue*/
-    pthread_mutex_lock(&sq->locker);
+    printf("haha\n");
+    pthread_mutex_lock( &(sq->locker) );
+
     if(sq->front==sq->rear) {
         printf("queue is empty.\n");
         return -1;
@@ -48,22 +45,22 @@ int sq_read(queue *sq, void *item) {
         sq->front ++;
     else
         sq->front = 0;
-    pthread_mutex_unlock(&sq->locker);
-    return 0
+    pthread_mutex_unlock( &(sq->locker) );
+    return 0;
 }
 
-int sq_delete(queue *sq) {
+int sq_delete(queue *sq, void *(*clean)(void *)) {
     int i;
     //if not empyt
     if(sq->front < sq->rear) {
         for(i=sq->front; i<sq->rear; i++)
-            free(sq->data[i]->str);
+            clean(sq->data[i]);
         free(sq->data);
     } else if(sq->front > sq->rear) {
         for(i=sq->front; i<sq->len; i++)
-            free(sq->data[i]->str);
+            clean(sq->data[i]);
         for(i=0; i<sq->rear; i++)
-            free(sq->data[i]->str);
+            clean(sq->data[i]);
         free(sq->data);
     }
     pthread_mutex_destroy(&sq->locker);
