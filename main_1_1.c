@@ -27,7 +27,7 @@ typedef struct {
 } receiver_arg;
 
 // source: https://gist.github.com/BinaryPrison/1112092
-static inline uint32_t __iter_div_u64_rem(uint64_t dividend, uint32_t divisor, uint64_t *remainder) {
+static uint32_t __iter_div_u64_rem(uint64_t dividend, uint32_t divisor, uint64_t *remainder) {
     uint32_t ret = 0;
     while (dividend >= divisor) {
     /* The following asm() prevents the compiler from
@@ -40,7 +40,7 @@ static inline uint32_t __iter_div_u64_rem(uint64_t dividend, uint32_t divisor, u
     return ret;
 }
 #define NSEC_PER_SEC  1000000000L
-static inline void timespec_add_ns(struct timespec *a, uint64_t ns) {
+static void timespec_add_ns(struct timespec *a, uint64_t ns) {
     a->tv_sec += __iter_div_u64_rem(a->tv_nsec + ns, NSEC_PER_SEC, &ns);
     a->tv_nsec = ns;
 }
