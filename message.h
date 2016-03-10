@@ -9,4 +9,4 @@ typedef struct {
     char *str;
 } message;
 
-void *clean(void* m);
+void clean(void* m);

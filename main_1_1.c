@@ -67,8 +67,8 @@ void *deamon_routine(void *arg) {
         while(sq_read(arg2->bus_in_q, m) != -1) {
             //sq_write(arg2->bus_out_q[m->dst], m);
             //check dropped
-
         }
+        //printf("deamon: end of reading.\n");
         timespec_add_ns(&next, period);
         clock_nanosleep(CLOCK_MONOTONIC, TIMER_ABSTIME, &next, 0);
     }
@@ -98,6 +98,7 @@ void *sender_routine(void *arg) {
                 pthread_rwlock_unlock(&msn_rwlock);
                 return;
             }
+            printf("%d\n", msn);
             m.id = msn++; 
             pthread_rwlock_unlock(&msn_rwlock);
             m.src = arg2->sender_id;
@@ -148,26 +149,26 @@ int main(int argc, char *argv[]) {
     void *thread_result[5];
     int prio_index = 0;
 
-    sq_create(bus_in_q, DEFAULT_QUEUE_LEN);
+    sq_create(&bus_in_q, DEFAULT_QUEUE_LEN);
     int i;
     for (i=0; i<RECEIVER_NUM; i++) {
-        sq_create(bus_out_q[i], DEFAULT_QUEUE_LEN);
+        sq_create(&(bus_out_q[i]), DEFAULT_QUEUE_LEN);
     }
 
     pthread_rwlock_init(&msn_rwlock, NULL);
     
     srand(time(NULL));
 
-    deamon_arg arg;
+    /*deamon_arg arg;
     arg.bus_in_q = bus_in_q;
     arg.bus_out_q = (queue**) malloc(sizeof(queue*)*RECEIVER_NUM);
     for(i=0; i<RECEIVER_NUM; i++)
         arg.bus_out_q[i] = bus_out_q[i];
     pthread_create(&bus_deamon, NULL, deamon_routine, &arg);
-    pthread_setschedprio(bus_deamon, thread_priority[prio_index++]);
+    pthread_setschedprio(bus_deamon, thread_priority[prio_index++]);*/
 
     
-    /*for(i=0; i<SENDER_NUM; i++) {
+    for(i=0; i<SENDER_NUM; i++) {
         sender_arg arg;
         arg.sender_id = i;
         arg.bus_in_q = bus_in_q;
@@ -181,8 +182,15 @@ int main(int argc, char *argv[]) {
         arg.bus_out_q = bus_out_q[i];
         pthread_create(&receiver[i], NULL, receiver_routine, &arg);
         pthread_setschedprio(receiver[i], thread_priority[prio_index++]);
-    }*/
+    }
 
     pthread_join(bus_deamon, NULL);
+    for(i=0; i<SENDER_NUM; i++) {
+        pthread_join(sender[i], NULL);
+    }
+    for(i=0; i<RECEIVER_NUM; i++) {
+        pthread_join(receiver[i], NULL);
+    }
+    
     return 0;
 }

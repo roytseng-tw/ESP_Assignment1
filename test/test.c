@@ -1,6 +1,7 @@
-#include<stdio.h>
-#include<stdlib.h>
-#include<pthread.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <pthread.h>
+#include "test2.h"
 
 void *test_routine(void *arg) {
     int id = *(int*)arg;
@@ -8,7 +9,6 @@ void *test_routine(void *arg) {
 }
 
 int main(int argc, char *argv[]) {
-    printf("haha\n");
     pthread_t thread_id;
     void *thread_result;
     
@@ -17,7 +17,18 @@ int main(int argc, char *argv[]) {
     
     printf("I'm in the main function.\n");
     
-    pthread_join(thread_id, &thread_result); 
-     
+    pthread_join(thread_id, &thread_result);
+    
+    test_struct* bbb;
+    create(&bbb);
+    printf("%d\n", bbb->a);
+
+    add(bbb);
+    printf("%d\n", bbb->a);
+
+    test_struct bla = *bbb;
+    printf("%d\n", (&bla)->a);
+
+
     return 0;
 }
