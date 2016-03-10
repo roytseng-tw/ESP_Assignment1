@@ -1,0 +1,4 @@
+1. How to execute
+    make clean
+    make all
+    ./main_1_1
